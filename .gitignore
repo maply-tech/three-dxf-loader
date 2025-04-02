@@ -1,6 +1,5 @@
 node_modules/
 .idea/
-dist/
 private/
 typings/
 build/

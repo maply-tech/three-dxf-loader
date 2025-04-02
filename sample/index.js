@@ -1,130 +1,64 @@
-import 'three'
-import * as ThreeDxfLoader from 'three-dxf-viewer'
+import * as THREE from 'three';
+import { DXFLoader } from 'three-dxf-loader';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-const progress = document.getElementById('file-progress-bar')
-const $progress = document.getElementsByClassName('progress')[0]
+let scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000000);
 
-const $cadview = document.getElementById('cad-view')
-const dxfContentEl = document.getElementById('dxf-content')
-const dxfStringCheckbox = document.getElementById('dxf-string')
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-// Setup the drag and drop file listeners.
-// const dropZone = document.getElementById('drop-zone');
-// dropZone.addEventListener('dragover', handleDragOver, false);
-// dropZone.addEventListener('drop', onFileSelected, false);
+scene.background = new THREE.Color(0x949494);
+const loader = new DXFLoader();
+const controls = new OrbitControls(camera, renderer.domElement);
 
-document.getElementById('dxf').addEventListener('change', onFileSelected, false)
+renderer.render(scene, camera);
 
-function onFileSelected(evt) {
-  progress.style.width = '0%'
-  progress.textContent = '0%'
+const animate = () => {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+};
 
-  const file = evt.target.files[0]
-  const output = []
-  output.push(
-    '<li><strong>',
-    encodeURI(file.name),
-    '</strong> (',
-    file.type || 'n/a',
-    ') - ',
-    file.size,
-    ' bytes, last modified: ',
-    file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a',
-    '</li>'
-  )
-  document.getElementById('file-description').innerHTML = '<ul>' + output.join('') + '</ul>'
+const onWindowResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
 
-  $progress.classList.add('loading')
+window.addEventListener('resize', onWindowResize);
 
-  const reader = new FileReader()
-  reader.onprogress = updateProgress
-  reader.onloadend = onSuccess
-  reader.onabort = abortUpload
-  reader.onerror = errorHandler
-  reader.readAsText(file)
-}
-
-function abortUpload() {
-  console.error('Aborted read!')
-}
-
-function errorHandler(evt) {
-  switch (evt.target.error.code) {
-    case evt.target.error.NOT_FOUND_ERR:
-      alert('File Not Found!')
-      break
-    case evt.target.error.NOT_READABLE_ERR:
-      alert('File is not readable')
-      break
-    case evt.target.error.ABORT_ERR:
-      break // noop
-    default:
-      alert('An error occurred reading this file.')
-  }
-}
-
-function updateProgress(evt) {
-  console.debug('progress', Math.round((evt.loaded / evt.total) * 100))
-  if (evt.lengthComputable) {
-    const percentLoaded = Math.round((evt.loaded / evt.total) * 100)
-    if (percentLoaded < 100) {
-      progress.style.width = percentLoaded + '%'
-      progress.textContent = percentLoaded + '%'
-    }
-  }
-}
-
-function onSuccess(evt) {
-  const fileReader = evt.target
-  if (fileReader.error) return console.error('error onloadend!?')
-  progress.style.width = '100%'
-  progress.textContent = '100%'
-  setTimeout(function () {
-    $progress.classList.remove('loading')
-  }, 2000)
-  const parser = new window.DxfParser()
-  const dxf = parser.parseSync(fileReader.result)
-
-  dxfStringCheckbox.addEventListener('change', (event) => {
-    if (!dxf) {
-      dxfContentEl.innerHTML = 'No data.'
-    } else {
-      if (event.currentTarget.checked) {
-        dxfContentEl.innerHTML = JSON.stringify(dxf, null, 2)
-      } else {
-        dxfContentEl.innerHTML = 'Click checkbox to see DXF string.'
-      }
-    }
-  })
-
-  // Three.js changed the way fonts are loaded, and now we need to use FontLoader to load a font
-  //  and enable TextGeometry. See this example http://threejs.org/examples/?q=text#webgl_geometry_text
-  //  and this discussion https://github.com/mrdoob/three.js/issues/7398
-  let font
-  const loader = new ThreeDxfLoader.THREEx.FontLoader()
-  const fontUrl = '/sample/fonts/helvetiker_regular.typeface.json'
-  loader.load(
-    fontUrl,
-    function (response) {
-      font = response
-      font.url = fontUrl
-      const cadCanvas = new ThreeDxfLoader.Viewer(
-        dxf,
-        document.getElementById('cad-view'),
-        1000,
-        800,
-        font
-      )
-    },
-    null,
-    function (error) {
-      console.error(error)
-    }
-  )
-}
-
-function handleDragOver(evt) {
-  evt.stopPropagation()
-  evt.preventDefault()
-  evt.dataTransfer.dropEffect = 'copy' // Explicitly show this is a copy.
-}
+document.addEventListener('dragover', (e) => e.preventDefault());
+(new FontLoader()).load("fonts/helvetiker_regular.typeface.json", (font) => {
+  loader.setFont(font);
+  loader.setEnableLayer(true);
+  document.addEventListener('drop', function (event) {
+    event.preventDefault();
+    const reader = new FileReader();
+    reader.addEventListener(
+      "load",
+      () => {
+        loader.loadString(reader.result, (data) => {
+          console.log(data.dxf.entities);
+          if (data?.entity) {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x949494);
+            const min = data.dxf.header.$EXTMIN, max = data.dxf.header.$EXTMAX;
+            const bounds = new THREE.Box3(min, max);
+            bounds.getCenter(camera.position);
+            camera.position.sub(min);
+            data.entity.position.sub(min);
+            controls.target.copy(camera.position);
+            const sz = bounds.getSize(new THREE.Vector3());
+            camera.position.z = 2 * Math.max(Math.max(sz.x, sz.y), sz.z);
+            scene.add(data.entity);
+            animate();
+          }
+        });
+      },
+      false,
+    );
+    reader.readAsText(event.dataTransfer.files[0]);
+  });
+});
