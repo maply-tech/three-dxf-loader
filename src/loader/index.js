@@ -253,6 +253,7 @@ class DXFLoader extends THREE.Loader {
 
       // Create the final object to add to the scene
       var ellipse = new THREE.Line(geometry, material);
+      ellipse.modelSpace = !!entity.inPaperSpace;
       return ellipse;
     }
 
@@ -273,6 +274,7 @@ class DXFLoader extends THREE.Loader {
 
       var group = new THREE.Object3D();
       group.add(txt);
+      group.modelSpace = !!entity.inPaperSpace;
       return group;
     }
 
@@ -414,6 +416,7 @@ class DXFLoader extends THREE.Loader {
       var material = new THREE.LineBasicMaterial({ linewidth: 1, color: color });
       var splineObject = new THREE.Line(geometry, material);
 
+      splineObject.modelSpace = !!entity.inPaperSpace;
       return splineObject;
     }
 
@@ -510,6 +513,7 @@ class DXFLoader extends THREE.Loader {
       // create geometry
       var geometry = new BufferGeometry().setFromPoints(points);
       line = new THREE.Line(geometry, material);
+      line.modelSpace = !!entity.inPaperSpace;
       return line;
     }
 
@@ -613,6 +617,7 @@ class DXFLoader extends THREE.Loader {
       arc.position.x = entity.center.x;
       arc.position.y = entity.center.y;
       arc.position.z = entity.center.z;
+      arc.modelSpace = !!entity.inPaperSpace;
 
       return arc;
     }
@@ -668,7 +673,7 @@ class DXFLoader extends THREE.Loader {
       geometry = new ThreeEx.TextGeometry(entity.text, {
         font: font,
         height: 0,
-        size: 12,
+        size: entity.textHeight || 12,
         bevelEnabled: true,
         depth: .1,
         bevelThickness: 0.01,
@@ -688,6 +693,7 @@ class DXFLoader extends THREE.Loader {
       text.position.y = entity.startPoint.y;
       text.position.z = entity.startPoint.z;
 
+      text.modelSpace = !!entity.inPaperSpace;
       text.text = entity.text;
       text.isText = true;
       text.fontSize = entity.textHeight;
@@ -710,6 +716,7 @@ class DXFLoader extends THREE.Loader {
 
       material = new THREE.PointsMaterial({ size: 0.1, color: new Color(color) });
       point = new THREE.Points(geometry, material);
+      point.modelSpace = !!entity.inPaperSpace;
       return point;
     }
 
