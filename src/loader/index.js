@@ -274,7 +274,6 @@ class DXFLoader extends THREE.Loader {
 
       var group = new THREE.Object3D();
       group.add(txt);
-      group.modelSpace = !!entity.inPaperSpace;
       return group;
     }
 
@@ -398,6 +397,8 @@ class DXFLoader extends THREE.Loader {
           if (textEnt.textAlign === 'right') textEnt.position.x += entity.width - textWidth;
         }
       });
+
+      textEnt.modelSpace = !!entity.inPaperSpace;
 
       return textEnt;
     }
