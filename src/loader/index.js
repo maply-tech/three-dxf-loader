@@ -668,7 +668,7 @@ class DXFLoader extends THREE.Loader {
       geometry = new ThreeEx.TextGeometry(entity.text, {
         font: font,
         height: 0,
-        size: entity.textHeight || 12,
+        size: 12,
         bevelEnabled: true,
         depth: .1,
         bevelThickness: 0.01,
