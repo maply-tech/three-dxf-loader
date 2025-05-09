@@ -228,6 +228,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawEllipse(entity, data) {
+      if (entity.paperSpace) return undefined;
       var color = getColor(entity, data);
 
       var xrad = Math.sqrt(
@@ -258,6 +259,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawMtext(entity, data) {
+      if (entity.paperSpace) return undefined;
       var color = getColor(entity, data);
 
       if (!font) {
@@ -404,6 +406,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawSpline(entity, data) {
+      if (entity.paperSpace) return undefined;
       var color = getColor(entity, data);
 
       var points = getBSplinePolyline(
@@ -471,6 +474,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawLine(entity, data) {
+      if (entity.paperSpace) return undefined;
       let points = [];
       let color = getColor(entity, data);
       var material, lineType, vertex, startPoint, endPoint, bulgeGeometry, bulge, i, line;
@@ -598,6 +602,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawArc(entity, data) {
+      if (entity.paperSpace) return undefined;
       var startAngle, endAngle;
       if (entity.type === 'CIRCLE') {
         startAngle = entity.startAngle || 0;
@@ -644,6 +649,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawSolid(entity, data) {
+      if (entity.paperSpace) return undefined;
       var material,
         verts,
         geometry = new THREE.BufferGeometry();
@@ -661,6 +667,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawText(entity, data) {
+      if (entity.paperSpace) return undefined;
       var geometry, material, text;
 
       if (!font)
@@ -694,6 +701,7 @@ class DXFLoader extends THREE.Loader {
       text.position.y = entity.startPoint.y;
       text.position.z = entity.startPoint.z;
 
+      text.entity = entity;
       text.paperSpace = !!entity.inPaperSpace;
       text.text = entity.text;
       text.isText = true;
@@ -704,6 +712,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawPoint(entity, data) {
+      if (entity.paperSpace) return undefined;
       var geometry, material, point;
 
       geometry = new THREE.BufferGeometry();
@@ -742,6 +751,7 @@ class DXFLoader extends THREE.Loader {
     }
 
     function drawBlock(entity, data) {
+      if (entity.paperSpace) return undefined;
       var block = data.blocks[entity.name];
 
       if (!block.entities || block.inPaperSpace) return null;
