@@ -682,16 +682,11 @@ class DXFLoader extends THREE.Loader {
         font: font,
         height: 0,
         size: entity.textHeight || 12,
-        bevelEnabled: true,
+        bevelEnabled: false,
         depth: .1,
         bevelThickness: 0.01,
         bevelSize: 1
       });
-
-      if (entity.rotation) {
-        var zRotation = (entity.rotation * Math.PI) / 180;
-        geometry.rotateZ(zRotation);
-      }
 
       const color = getColor(entity, data);
       material = new THREE.MeshBasicMaterial({ color });
@@ -700,6 +695,8 @@ class DXFLoader extends THREE.Loader {
       text.position.x = entity.startPoint.x;
       text.position.y = entity.startPoint.y;
       text.position.z = entity.startPoint.z;
+
+      if (entity.rotation) text.rotation.z = (entity.rotation * Math.PI) / 180;
 
       text.entity = entity;
       text.paperSpace = !!entity.inPaperSpace;
