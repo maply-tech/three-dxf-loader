@@ -752,6 +752,7 @@ class DXFLoader extends THREE.Loader {
 
       if (!block.entities || block.inPaperSpace) return null;
       if (block.refpath && block.refpath != "") return null;
+      if (block.type && block.type != 0) return null;
 
       var group = new THREE.Object3D();
 
