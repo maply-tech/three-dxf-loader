@@ -698,7 +698,6 @@ class DXFLoader extends THREE.Loader {
 
       if (entity.rotation) text.rotation.z = (entity.rotation * Math.PI) / 180;
 
-      text.entity = entity;
       text.paperSpace = !!entity.inPaperSpace;
       text.text = entity.text;
       text.isText = true;
@@ -752,6 +751,7 @@ class DXFLoader extends THREE.Loader {
       var block = data.blocks[entity.name];
 
       if (!block.entities || block.inPaperSpace) return null;
+      if (block.refpath && block.refpath != "") return null;
 
       var group = new THREE.Object3D();
 
