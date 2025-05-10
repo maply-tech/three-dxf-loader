@@ -197,9 +197,8 @@ class DXFLoader extends THREE.Loader {
         entity.type === 'POLYLINE'
       ) {
         mesh = drawLine(entity, data);
-      } else if (entity.type === 'TEXT') {
-        mesh = drawText(entity, data);
-      } else if (entity.type === 'MTEXT') {
+      } else if (entity.type === 'TEXT' || entity.type === 'MTEXT') {
+        // mesh = drawText(entity, data);
         mesh = drawMtext(entity, data);
       } else if (entity.type === 'SOLID') {
         mesh = drawSolid(entity, data);
@@ -274,15 +273,13 @@ class DXFLoader extends THREE.Loader {
       var txt = createTextForScene(content.text, content.style, entity, color);
       if (!txt) return null;
 
-      var group = new THREE.Object3D();
-      group.add(txt);
-      return group;
+      return txt;
     }
 
     function mtextContentAndFormattingToTextAndStyle(textAndControlChars, entity, color) {
       let activeStyle = {
         horizontalAlignment: 'left',
-        textHeight: entity.height,
+        textHeight: entity.textHeight || entity.height,
       };
 
       var text = [];
@@ -329,13 +326,14 @@ class DXFLoader extends THREE.Loader {
       textEnt.position.z = entity.position.z;
       textEnt.textAlign = style.horizontalAlignment;
       textEnt.color = color;
-      if (entity.rotation) {
-        textEnt.rotation.z = (entity.rotation * Math.PI) / 180;
-      }
+
+      if (entity.rotation) textEnt.rotation.z = (entity.rotation * Math.PI) / 180;
+
       if (entity.directionVector) {
         var dv = entity.directionVector;
         textEnt.rotation.z = new THREE.Vector3(1, 0, 0).angleTo(new THREE.Vector3(dv.x, dv.y, dv.z));
       }
+
       textEnt.orientationZ = (textEnt.rotation.z * 180) / Math.PI;
 
       switch (entity.attachmentPoint) {
