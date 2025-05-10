@@ -392,12 +392,12 @@ class DXFLoader extends THREE.Loader {
       }
 
       textEnt.sync(() => {
-        if (textEnt.textAlign !== 'left') {
-          textEnt.geometry.computeBoundingBox();
-          var textWidth = textEnt.geometry.boundingBox.max.x - textEnt.geometry.boundingBox.min.x;
-          if (textEnt.textAlign === 'center') textEnt.position.x += (entity.width - textWidth) / 2;
-          if (textEnt.textAlign === 'right') textEnt.position.x += entity.width - textWidth;
-        }
+        // if (textEnt.textAlign !== 'left') {
+        //   textEnt.geometry.computeBoundingBox();
+        //   var textWidth = textEnt.geometry.boundingBox.max.x - textEnt.geometry.boundingBox.min.x;
+        //   if (textEnt.textAlign === 'center') textEnt.position.x += (entity.width - textWidth) / 2;
+        //   if (textEnt.textAlign === 'right') textEnt.position.x += entity.width - textWidth;
+        // }
       });
 
       textEnt.paperSpace = !!entity.inPaperSpace;
@@ -751,7 +751,6 @@ class DXFLoader extends THREE.Loader {
       var block = data.blocks[entity.name];
 
       if (!block.entities || block.inPaperSpace) return null;
-      if (block.refpath && block.refpath != "") return null;
       if (block.type && block.type != 0) return null;
 
       var group = new THREE.Object3D();
