@@ -197,8 +197,9 @@ class DXFLoader extends THREE.Loader {
         entity.type === 'POLYLINE'
       ) {
         mesh = drawLine(entity, data);
-      } else if (entity.type === 'TEXT' || entity.type === 'MTEXT') {
-        // mesh = drawText(entity, data);
+      } else if (entity.type === 'TEXT') {
+        mesh = drawText(entity, data);
+      } else if (entity.type === 'MTEXT') {
         mesh = drawMtext(entity, data);
       } else if (entity.type === 'SOLID') {
         mesh = drawSolid(entity, data);
@@ -749,7 +750,7 @@ class DXFLoader extends THREE.Loader {
       var block = data.blocks[entity.name];
 
       if (!block.entities || block.inPaperSpace) return null;
-      if (block.type && block.type != 0) return null;
+      // if (block.type && block.type != 0) return null;
 
       var group = new THREE.Object3D();
 
